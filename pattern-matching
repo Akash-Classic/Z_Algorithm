@@ -1,0 +1,96 @@
+import java.util.ArrayList;
+import java.util.List;
+public class Z_Algorithm {
+
+	public static void main(String[] args) {
+		String text = "aaabcxyzaaaabczaaczabbaaaaaaabc";
+		String pattern = "aaabc";
+	  List<Integer> result = patternMatching(text.toCharArray(),pattern.toCharArray());
+       for(int val: result) {
+    	   System.out.println(val);
+       }
+	}
+
+	private static List<Integer> patternMatching(char[] text, char[] pattern) {
+		//creating new array of pattern+$+text
+		char [] newArr = new char[text.length+1+pattern.length+1];
+		int i =0;
+		//add pattern first to the new char array
+		for(char ch: pattern) {
+			newArr[i] = ch;
+			i++;
+		}
+		//add special char after pattern 
+		newArr[i] = '$';
+		i++;
+		//add text after special character
+		for(char ch: text) {
+			newArr[i] = ch;
+			i++;
+		}
+		
+		List<Integer> result = new ArrayList<>();
+		//calculate z array
+		int []Z = calcualteZ(newArr);
+		for(int j=0;j<Z.length;j++) {
+			if(Z[j]==pattern.length) {
+				result.add(j-pattern.length-1);
+			}
+		}
+		
+		return result;
+	}
+
+	private static int[] calcualteZ(char[] input) {
+		int []Z = new int[input.length];
+		int left = 0;
+		int right = 0;
+		
+		//iterating over each and every element in the array to calculate its z value
+		for(int k =1;k<input.length;k++) {
+			//there are two possible cases here
+			//case1: k can be out of z-box i.e. greater than the right boundry
+			if(k > right) {
+				//there is no z-box OR possibly the starting of the z-box
+				left = right =k;
+				//trying to match the character at right index with the prefix of the string
+				while(right < input.length && input[right] == input[right - left] ) {
+					right++;
+				}
+				//find the length of z-box
+				Z[k] = right-left;
+				right--;
+			}else {
+				//case2: k can be in the z-box
+				//we are operating inside the Z-box
+				
+				//tells how far you from the left boundry
+				//also the character from the start from the string
+				//from where you will copy the z_value
+				int k1 = k-left;
+				
+				//if the value does not stretch till the right boundry, then simply
+				//copy the value
+				
+				if(Z[k1] < right-k+1) {
+					Z[k] = Z[k1];
+				}else {
+					//calculate the z-value for that character instead of copying
+					left = k;
+					while(right < input.length && input[right] == input[right - left]) {
+						right++;
+					}
+					
+					//find the length of the box
+					Z[k] = right-left;
+					right--;
+				}
+				
+				
+				
+			}
+		}
+		return Z;
+	}
+
+}
